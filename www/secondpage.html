@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Lab Test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link href="css/navbar-fixed-top.css" rel="stylesheet">
+    </head>
+    <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">CSM3103</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Profile</a></li>
+                            <li><a href="#">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Staff Details</h2>
+                <div id="staff-details" class="staff-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer navbar-fixed-bottom">
+        <div class="container">
+            <p>&copy; Luqman Hakim</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const employeeNumber = urlParams.get('id');
+            console.log("Employee Number in URL:", employeeNumber);
+
+            if (employeeNumber) {
+                $.ajax({
+                    url: `https://kerbau.odaje.biz/getstaffbyid.php?id=${employeeNumber}`,
+                    method: 'GET',
+                    success: function(response) {
+                        console.log("Response from getstaffbyid.php:", response);
+                        try {
+                            const data = JSON.parse(response);
+                            console.log("Parsed Data:", data);
+                            
+                            if (data.length >= 2 && JSON.parse(data[0]).status === 1) {
+                                const staffData = JSON.parse(data[1]);
+                                $('#staff-details').html(
+                                    `<div class="panel panel-default">
+                                         <div class="panel-body">
+                                            <p><strong>Employee Number:</strong> ${staffData.employeeNumber}</p>
+                                            <p><strong>Firstname:</strong> ${staffData.firstName}</p> 
+                                            <p><strong>Lastname:</strong>  ${staffData.lastName}</p>
+                                            <p><strong>Office Code:</strong> ${staffData.officeCode}</p>
+                                            <p><strong>Phone Extension:</strong> ${staffData.extension}</p>
+                                            <p><strong>Email Address:</strong> ${staffData.email}</p>
+                                            <p><strong>Job Title:</strong> ${staffData.jobTitle}</p>
+                                        </div>
+                                    </div>`
+                                );
+                            } else {
+                                $('#staff-details').html('<div class="alert alert-warning">No data found for the given employee number.</div>');
+                            }
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                            $('#staff-details').html('<div class="alert alert-danger">Error parsing response.</div>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching data:", error);
+                        $('#staff-details').html('<div class="alert alert-danger">Error fetching staff details.</div>');
+                    }
+                });
+            } else {
+                $('#staff-details').html('<div class="alert alert-danger">Invalid employee number.</div>');
+            }
+        });
+    </script>
+    </body>
+</html>

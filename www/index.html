@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Lab Test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link href="css/navbar-fixed-top.css" rel="stylesheet">
+    </head>
+    <body>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">CSM3103</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Profile</a></li>
+                            <li><a href="#">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Staff Emails</h2>
+                <ul id="staff-list" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer navbar-fixed-bottom">
+        <div class="container">
+            <p>&copy; Luqman Hakim</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: 'https://kerbau.odaje.biz/getstaff.php',
+                method: 'GET',
+                success: function(response) {
+                    console.log("Response from getstaff.php:", response);
+                    try {
+                        const data = JSON.parse(response);
+                        let staffFound = false;
+
+                        data.forEach(item => {
+                            try {
+                                const parsedItem = JSON.parse(item);
+                                if (parsedItem.email) {
+                                    $('#staff-list').append(
+                                        `<li class="list-group-item">
+                                            <a href="javascript:void(0)" onclick="showDetails(${parsedItem.employeeNumber})">${parsedItem.email}</a>
+                                        </li>`
+                                    );
+                                    staffFound = true;
+                                }
+                            } catch (error) {
+                                console.error("Error parsing item:", error);
+                            }
+                        });
+
+                        if (!staffFound) {
+                            $('#staff-list').append('<li class="list-group-item">No staff found.</li>');
+                        }
+                    } catch (error) {
+                        console.error("Error parsing response:", error);
+                        $('#staff-list').append('<li class="list-group-item">Error fetching staff data.</li>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    $('#staff-list').append('<li class="list-group-item">Error fetching staff data.</li>');
+                }
+            });
+        });
+
+        function showDetails(employeeNumber) {
+            console.log("Employee Number clicked:", employeeNumber);
+            window.location.href = `secondpage.html?id=${employeeNumber}`;
+        }
+    </script>
+    </body>
+</html>
